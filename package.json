@@ -1,0 +1,23 @@
+{
+  "name": "blueberry-api",
+  "version": "1.0.0-hydrogen.e250117a.api",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "@migan/prettier-config": "^1.2.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.1",
+    "prettier": "^3.4.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "axios": "^1.7.9",
+    "express": "^4.21.2"
+  },
+  "scripts": {
+    "build": "tsup"
+  }
+}
