@@ -1,6 +1,6 @@
 {
   "name": "blueberry-api",
-  "version": "1.0.0-hydrogen.e250118a.api",
+  "version": "1.0.0-hydrogen.e250118b.api",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,9 @@
     "@migan/prettier-config": "^1.2.0",
     "@sapphire/framework": "^5.3.2",
     "@trivago/prettier-plugin-sort-imports": "^5.2.1",
+    "discord.js": "^14.17.3",
     "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3"
   },
@@ -20,6 +22,7 @@
     "express": "^4.21.2"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "self-test": "ts-node selfTest"
   }
 }
