@@ -19,7 +19,7 @@ export class BlueBerryServer {
       })
     })
 
-    this.app.get('/maintenance', maintenance)
+    this.app.post(Routes.maintenance, maintenance)
   }
 
   public start() {
