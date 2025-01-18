@@ -1,4 +1,5 @@
 import { version } from '..'
+import { Routes } from '../routes'
 import { maintenance } from './routes'
 import type { Container } from '@sapphire/framework'
 import express from 'express'
