@@ -3,9 +3,16 @@ import { container } from '@sapphire/framework'
 import { Request, Response } from 'express'
 
 export function maintenance(req: Request, res: Response) {
-  const data = req.body as Maintenance
+  const data: Maintenance = {
+    maintenance: req.body.maintenance,
+    date: {
+      start: new Date(req.body.date.start),
+      end: new Date(req.body.date.end),
+    },
+  }
   if (data.maintenance === undefined) {
     res.status(400).json({
+      status: 'Bad Request',
       error: 'The maintenance value is required.',
       status_code: 400,
     })
@@ -15,5 +22,7 @@ export function maintenance(req: Request, res: Response) {
   if (!data.maintenance) container.maintenance = null
   else container.maintenance = data
 
-  res.status(200).send()
+  res.status(200).json({
+    status: 'OK',
+  })
 }
