@@ -1,4 +1,4 @@
-import { Actions, Maintenance, WebSocketRequest } from '../../types'
+import { Actions, Maintenance, WebSocketRequest } from '../../../types'
 import { WebSocket } from 'ws'
 
 export function maintenance(
