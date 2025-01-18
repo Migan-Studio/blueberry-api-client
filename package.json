@@ -1,6 +1,6 @@
 {
   "name": "blueberry-api",
-  "version": "1.0.0-hydrogen.e250118b.api",
+  "version": "1.0.0-hydrogen.e250118c.api",
   "private": true,
   "main": "src/index.ts",
   "license": "MIT",

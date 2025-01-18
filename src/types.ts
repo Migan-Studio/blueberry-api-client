@@ -7,8 +7,25 @@ export interface Maintenance {
   message?: string
 }
 
-declare module '@sapphire/pieces' {
-  interface Container {
-    maintenance: Maintenance | null
-  }
+export enum Actions {
+  Maintenance = 'maintenance',
+  Status = 'status',
+}
+
+export interface WebSocketRequest<K = undefined> {
+  action: Actions
+  data: K
+}
+
+export interface WebSocketResponse {
+  action: Actions
+  status: number
+}
+
+export interface WebSocketError extends WebSocketResponse {
+  error: string
+}
+
+export interface WebSocketOk<T = undefined> extends WebSocketResponse {
+  data: T
 }

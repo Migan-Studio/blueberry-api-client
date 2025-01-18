@@ -1,28 +1,35 @@
-import { Maintenance } from '../../types'
-import { container } from '@sapphire/framework'
-import { Request, Response } from 'express'
+import { Actions, Maintenance, WebSocketRequest } from '../../types'
+import { WebSocket } from 'ws'
 
-export function maintenance(req: Request, res: Response) {
+export function maintenance(
+  ws: WebSocket,
+  wsData: WebSocketRequest<Maintenance>,
+) {
+  if (wsData.data === undefined) {
+    return ws.send(JSON.stringify({}))
+  }
+
   const data: Maintenance = {
-    maintenance: req.body.maintenance,
-    date: {
-      start: new Date(req.body.date.start),
-      end: new Date(req.body.date.end),
-    },
+    maintenance: wsData.data.maintenance,
   }
+
+  wsData.data.date ? (data.date = wsData.data.date) : null
+
   if (data.maintenance === undefined) {
-    res.status(400).json({
-      status: 'Bad Request',
-      error: 'The maintenance value is required.',
-      status_code: 400,
-    })
-    return
+    return ws.send(
+      JSON.stringify({
+        action: Actions.Maintenance,
+        status: 'Bad Request',
+        error: 'The maintenance value is required.',
+        status_code: 400,
+      }),
+    )
   }
 
-  if (!data.maintenance) container.maintenance = null
-  else container.maintenance = data
-
-  res.status(200).json({
-    status: 'OK',
-  })
+  ws.send(
+    JSON.stringify({
+      action: Actions.Maintenance,
+      status: 200,
+    }),
+  )
 }
