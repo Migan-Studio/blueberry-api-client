@@ -8,8 +8,10 @@ export interface Maintenance {
 }
 
 export enum Actions {
-  Maintenance = 'maintenance',
-  Status = 'status',
+  ReqMaintenance = 'reqMaintenance',
+  ResMaintenance = 'resMaintenance',
+  ReqStatus = 'reqStatus',
+  ResStatus = 'resStatus',
 }
 
 export interface WebSocketRequest<K = undefined> {

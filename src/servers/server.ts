@@ -1,17 +1,22 @@
-import { Actions, maintenance, version } from '..'
-import type { WebSocketRequest } from '../types'
+import { Actions, getMaintenance, sendMaintenance, version } from '..'
+import type { Maintenance, WebSocketRequest } from '../types'
+import EventEmitter from 'events'
 import express from 'express'
-import { createServer } from 'http'
-import { WebSocketServer } from 'ws'
+import { createServer, IncomingMessage } from 'http'
+import { WebSocket, WebSocketServer } from 'ws'
 
-export class BlueBerryServer {
-  public app = express()
-  public constructor(public port: number) {
+export class BlueBerryServer extends EventEmitter {
+  private _app = express()
+  private _httpServer = createServer(this._app)
+  private _wsServer = new WebSocketServer({ server: this._httpServer })
+  private _ws?: WebSocket
+  public constructor(private _port: number) {
+    super()
     console.log(`[BlueBerryAPI server] version: ${version}`)
 
-    this.app.use(express.json())
+    this._app.use(express.json())
 
-    this.app.get('/', (_, res) => {
+    this._app.get('/', (_, res) => {
       res.json({
         ping: 'Pong!',
       })
@@ -19,26 +24,29 @@ export class BlueBerryServer {
   }
 
   public start() {
-    const httpServer = createServer(this.app)
-    const wsServer = new WebSocketServer({ server: httpServer })
-
-    httpServer.listen(this.port, () => {
-      console.log(`[BlueBerryAPI server] port: ${this.port}`)
+    this._httpServer.listen(this._port, () => {
+      console.log(`[BlueBerryAPI server] port: ${this._port}`)
       console.log('[BlueBerryAPI server] Server is on.')
     })
 
-    wsServer.on('connection', ws => {
+    this._wsServer.on('connection', (ws, request: IncomingMessage) => {
+      this.emit('connection', ws, request)
+
+      this._ws = ws
+
       if (process.env.NODE_ENV === 'development') {
         console.log('[BlueBerryAPI server] connected.')
       }
 
-      ws.on('message', raw => {
+      ws.on('message', (raw, isBinary) => {
+        this.emit('message', raw, isBinary)
+
         try {
           const data: WebSocketRequest<any> = JSON.parse(String(raw))
 
           switch (data.action) {
-            case Actions.Maintenance:
-              maintenance(ws, data)
+            case Actions.ReqMaintenance:
+              getMaintenance(ws, data)
           }
         } catch (err) {
           console.error(err)
@@ -57,5 +65,14 @@ export class BlueBerryServer {
         }
       })
     })
+  }
+
+  public maintenance(data: Maintenance) {
+    if (this._ws === undefined)
+      throw new Error(
+        '[BlueBerryAPI Server] The WebSocket server is not opened.',
+      )
+
+    return sendMaintenance(this._ws, data)
   }
 }
