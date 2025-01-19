@@ -2,7 +2,7 @@
   "name": "blueberry-api",
   "version": "1.0.0-hydrogen.e250119b.api",
   "private": true,
-  "main": "src/index.ts",
+  "main": "index.ts",
   "license": "MIT",
   "devDependencies": {
     "@migan/prettier-config": "^1.2.0",
