@@ -1,7 +1,14 @@
-import { reqMaintenance, resMaintenance, resFirstConnection } from '../routes'
+import {
+  reqMaintenance,
+  resMaintenance,
+  resFirstConnection,
+  reqClientStatus,
+  resStatus,
+} from '../routes'
 import {
   Actions,
   Maintenance,
+  StatusRequest,
   WebSocketRequest,
   WebSocketResponse,
 } from '../types'
@@ -38,6 +45,8 @@ export class BlueBerryClient extends EventEmitter {
       switch (wsData.action) {
         case Actions.ReqMaintenance:
           reqMaintenance(this._ws, wsData)
+        case Actions.ReqStatus:
+          resStatus(this._ws)
       }
     })
 
@@ -57,5 +66,9 @@ export class BlueBerryClient extends EventEmitter {
 
   public maintenance(data: Maintenance) {
     return resMaintenance(this._ws, data)
+  }
+
+  public status(data: StatusRequest) {
+    return reqClientStatus(this._ws, data)
   }
 }

@@ -1,4 +1,10 @@
-import { Actions, reqMaintenance, reqFirstConnection, version } from '..'
+import {
+  Actions,
+  reqMaintenance,
+  reqFirstConnection,
+  version,
+  reqServerStatus,
+} from '..'
 import type { Socket, WebSocketRequest } from '../types'
 import EventEmitter from 'events'
 import express from 'express'
@@ -47,6 +53,8 @@ export class BlueBerryServer extends EventEmitter {
               reqMaintenance(ws, data)
             case Actions.ReqFirstConnection:
               this._sockets = reqFirstConnection(ws, data, this._sockets)
+            case Actions.ReqStatus:
+              reqServerStatus(ws, data, this._sockets)
           }
         } catch (err) {
           console.error(err)
