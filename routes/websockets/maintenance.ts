@@ -8,7 +8,7 @@ import {
 } from '../../types'
 import { RawData, WebSocket } from 'ws'
 
-export function getMaintenance(
+export function reqMaintenance(
   ws: WebSocket,
   wsData: WebSocketRequest<Maintenance>,
 ) {
@@ -24,9 +24,9 @@ export function getMaintenance(
 
   const data: Maintenance = {
     maintenance: wsData.data.maintenance,
+    date: wsData.data.date,
+    message: wsData.data.message,
   }
-
-  wsData.data.date ? (data.date = wsData.data.date) : null
 
   if (data.maintenance === undefined) {
     return ws.send(
@@ -47,10 +47,10 @@ export function getMaintenance(
   )
 }
 
-export function sendMaintenance(
+export function resMaintenance(
   ws: WebSocket,
   data: Maintenance,
-): Promise<WebSocketOk> {
+): Promise<WebSocketOk<Maintenance>> {
   ws.send(
     JSON.stringify({
       action: Actions.ReqMaintenance,
@@ -69,7 +69,7 @@ export function sendMaintenance(
         )
       }
 
-      resolve(data as WebSocketOk)
+      resolve(data as WebSocketOk<Maintenance>)
     }
 
     ws.once('message', listener)

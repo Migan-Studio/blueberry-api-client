@@ -1,3 +1,6 @@
+import { ReleaseChannel } from '../utils'
+import { WebSocket } from 'ws'
+
 export interface Maintenance {
   maintenance: boolean
   date?: {
@@ -7,20 +10,49 @@ export interface Maintenance {
   message?: string
 }
 
+export interface Status {
+  releaseChannel: ReleaseChannel
+  version: string
+  maintenance: Maintenance | null
+  uptime: number
+}
+
+export interface StatusRequest {
+  client: ReleaseChannel
+}
+
+export interface FirstConnectionRequest {
+  client: ReleaseChannel
+  heartbeatInterval: number
+}
+
+export interface FirstConnectionResponse extends Maintenance {
+  heartbeat_interval: number
+}
+
+export interface Socket {
+  name: ReleaseChannel
+  socket: WebSocket
+}
+
 export enum Actions {
   ReqMaintenance = 'reqMaintenance',
   ResMaintenance = 'resMaintenance',
   ReqStatus = 'reqStatus',
   ResStatus = 'resStatus',
+  ReqFirstConnection = 'reqFirstConnection',
+  ResFirstConnection = 'resFirstConnection',
 }
 
-export interface WebSocketRequest<K = undefined> {
+export interface WebSocketData {
   action: Actions
+}
+
+export interface WebSocketRequest<K = undefined> extends WebSocketData {
   data: K
 }
 
-export interface WebSocketResponse {
-  action: Actions
+export interface WebSocketResponse extends WebSocketData {
   status: number
 }
 
