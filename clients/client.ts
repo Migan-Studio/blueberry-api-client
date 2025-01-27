@@ -1,74 +1,64 @@
-import {
-  reqMaintenance,
-  resMaintenance,
-  resFirstConnection,
-  reqClientStatus,
-  resStatus,
-} from '../routes'
-import {
-  Actions,
-  Maintenance,
-  StatusRequest,
-  WebSocketRequest,
-  WebSocketResponse,
-} from '../types'
+import { ReleaseChannel } from '../../utils'
+import { ClientToServerEvents, ServerToClientEvents } from '../types'
 import { container } from '@sapphire/pieces'
 import { EventEmitter } from 'events'
-import { WebSocket } from 'ws'
+import { io, Socket } from 'socket.io-client'
 
 export class BlueBerryClient extends EventEmitter {
-  private _ws: WebSocket
+  private _io: Socket<ServerToClientEvents, ClientToServerEvents>
   public constructor(private url: string) {
     super()
-    this._ws = new WebSocket(this.url)
+    this._io = io(this.url)
 
-    this._ws.on('open', (...args) => {
-      console.log('[BlueBerryAPI Client] Connected by server.')
-      this.emit('open', ...args)
-
-      this._ws.send(
-        JSON.stringify({
-          action: Actions.ReqFirstConnection,
-          data: {
-            client: container.channel,
-            heartbeat_interval: container.heartbeatInterval,
-          },
-        }),
-      )
+    this._io.on('connect', () => {
+      this._io.emit('handshake', container.channel, data => {
+        if (!data.maintenance) container.maintenance = null
+        else container.maintenance = data
+      })
     })
 
-    this._ws.on('message', (raw, isBinary) => {
-      this.emit('message', raw, isBinary)
-
-      const wsData: WebSocketRequest<any> = JSON.parse(String(raw))
-
-      switch (wsData.action) {
-        case Actions.ReqMaintenance:
-          reqMaintenance(this._ws, wsData)
-        case Actions.ReqStatus:
-          resStatus(this._ws)
-      }
+    this._io.on('status', res => {
+      res({
+        releaseChannel: container.channel,
+        version: container.version,
+        maintenance: container.maintenance,
+        // dummy
+        uptime: 131,
+      })
     })
 
-    this._ws.on('message', raw => {
-      const wsData: WebSocketResponse = JSON.parse(String(raw))
+    // this._io.on('message', (raw, isBinary) => {
+    //   this.emit('message', raw, isBinary)
 
-      switch (wsData.action) {
-        case Actions.ResFirstConnection:
-          resFirstConnection(this._ws, wsData)
-      }
-    })
+    //   const wsData: WebSocketRequest<any> = JSON.parse(String(raw))
 
-    this._ws.on('ping', (...args) => {
-      this.emit('ping', ...args)
-    })
+    //   switch (wsData.action) {
+    //     case Actions.ReqMaintenance:
+    //       reqMaintenance(this._io, wsData)
+    //     case Actions.ReqStatus:
+    //       resStatus(this._io)
+    //   }
+    // })
+
+    // this._io.on('message', raw => {
+    //   const wsData: WebSocketResponse = JSON.parse(String(raw))
+
+    //   switch (wsData.action) {
+    //     case Actions.ResFirstConnection:
+    //       resFirstConnection(this._io, wsData)
+    //   }
+    // })
+
+    // this._io.on('ping', (...args) => {
+    //   this.emit('ping', ...args)
+    // })
   }
 
-  public maintenance(data: Maintenance) {
-    return resMaintenance(this._ws, data)
-  }
-
-  public status(data: StatusRequest) {
-    return reqClientStatus(this._ws, data)
+  public status(client: ReleaseChannel) {
+    return new Promise(resolve => {
+      this._io.emit('status', client, data => {
+        resolve(data)
+      })
+    })
   }
 }

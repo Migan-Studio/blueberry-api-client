@@ -63,3 +63,13 @@ export interface WebSocketError extends WebSocketResponse {
 export interface WebSocketOk<T = undefined> extends WebSocketResponse {
   data: T
 }
+
+export interface ClientToServerEvents {
+  handshake: (client: ReleaseChannel, cb: (data: Maintenance) => any) => any
+  status: (client: ReleaseChannel, cb: (data: Status) => any) => any
+}
+
+export interface ServerToClientEvents {
+  status: (cb: (data: Status) => any) => any
+  maintenance: (data: Maintenance) => any
+}
