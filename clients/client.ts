@@ -6,9 +6,9 @@ import { io, Socket } from 'socket.io-client'
 
 export class BlueBerryClient extends EventEmitter {
   private _io: Socket<ServerToClientEvents, ClientToServerEvents>
-  public constructor(private url: string) {
+  public constructor(private _url: string) {
     super()
-    this._io = io(this.url)
+    this._io = io(this._url)
 
     this._io.on('connect', () => {
       this._io.emit('handshake', container.channel, data => {
